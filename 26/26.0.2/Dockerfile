@@ -3,10 +3,30 @@ MAINTAINER Philip Graf <philip.graf@insfx.com>
 
 ENV ANDROID_PLATFORM_VERSION=26
 
-# Ruby for fastlane
+# Ruby and Bundler for fastlane
 RUN apt-get update && apt-get install -y --no-install-recommends \
-            ruby \
+            gcc \
+            g++ \
+            make \
+            ruby-dev \
       && rm -rf /var/lib/apt/lists/*
+
+RUN gem update --system \
+    && gem install bundler \
+    && rm -r /root/.gem/
+
+# install things globally, for great justice
+# and don't create ".bundle" in all our apps
+ENV GEM_HOME /usr/local/bundle
+ENV BUNDLE_PATH="$GEM_HOME" \
+  BUNDLE_BIN="$GEM_HOME/bin" \
+  BUNDLE_SILENCE_ROOT_WARNING=1 \
+  BUNDLE_APP_CONFIG="$GEM_HOME"
+
+ENV PATH $BUNDLE_BIN:$PATH
+
+RUN mkdir -p "$GEM_HOME" "$BUNDLE_BIN" \
+  && chmod 777 "$GEM_HOME" "$BUNDLE_BIN"
 
 RUN yes | sdkmanager "platforms;android-$ANDROID_PLATFORM_VERSION"
 
