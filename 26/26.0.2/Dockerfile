@@ -2,6 +2,8 @@ FROM inserteffect/android-build-tools:26.0.2
 MAINTAINER Philip Graf <philip.graf@insfx.com>
 
 ENV ANDROID_PLATFORM_VERSION=26
+ENV BUNDLER_VERSION=1.15.4
+ENV RUBYGEMS_VERSION 2.6.14
 
 # Ruby and Bundler for fastlane
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -11,8 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             ruby-dev \
       && rm -rf /var/lib/apt/lists/*
 
-RUN gem update --system \
-    && gem install bundler \
+RUN gem update --system "$RUBYGEMS_VERSION" \
+    && gem install bundler --version "$BUNDLER_VERSION" --force \
     && rm -r /root/.gem/
 
 # install things globally, for great justice
