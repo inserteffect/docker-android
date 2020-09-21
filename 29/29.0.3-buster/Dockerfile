@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             g++ \
             make \
             ruby-dev \
+            git \
       && rm -rf /var/lib/apt/lists/*
 
 RUN gem update --system "$RUBYGEMS_VERSION" \
