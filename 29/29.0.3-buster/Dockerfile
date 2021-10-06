@@ -3,6 +3,7 @@ MAINTAINER insertEFFECT <philip.graf@insfx.com>
 
 ENV ANDROID_PLATFORM_VERSION=29
 ENV BUNDLER_VERSION=2.0.2
+ENV RUBY_VERSION=2.7.2
 ENV RUBYGEMS_VERSION=3.0.6
 
 # Ruby and Bundler for fastlane
@@ -12,11 +13,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             make \
             ruby-dev \
             git \
+            curl \
+            openssl \
+            procps \
       && rm -rf /var/lib/apt/lists/*
 
-RUN gem update --system "$RUBYGEMS_VERSION" \
-    && gem install bundler --version "$BUNDLER_VERSION" --force \
-    && rm -r /root/.gem/
+RUN curl -L https://get.rvm.io | bash -s stable
+RUN bash -l -c "rvm requirements \
+                && rvm install $RUBY_VERSION \
+                && gem update --system \"$RUBYGEMS_VERSION\" \
+                && gem install bundler --version \"$BUNDLER_VERSION\" --force \
+                && rm -r /root/.gem/"
 
 # install things globally, for great justice
 # and don't create ".bundle" in all our apps
