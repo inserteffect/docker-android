@@ -24,6 +24,8 @@ RUN bash -l -c "rvm requirements \
                 && gem update --system \"$RUBYGEMS_VERSION\" \
                 && gem install bundler --version \"$BUNDLER_VERSION\" --force \
                 && rm -r /root/.gem/"
+ENV RVM_HOME /usr/local/rvm
+RUN echo "source $RVM_HOME/scripts/rvm" >> ~/.bashrc
 
 # install things globally, for great justice
 # and don't create ".bundle" in all our apps
