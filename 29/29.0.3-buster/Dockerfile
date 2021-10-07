@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
             gcc \
             g++ \
             make \
-            ruby-dev \
             git \
             curl \
             openssl \
