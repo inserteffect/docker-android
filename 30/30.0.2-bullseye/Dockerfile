@@ -1,4 +1,4 @@
-FROM inserteffect/android-build-tools:30.0.2-bullseye
+FROM ghcr.io/inserteffect/android-build-tools:30.0.2-bullseye
 
 ENV ANDROID_PLATFORM_VERSION=30
 

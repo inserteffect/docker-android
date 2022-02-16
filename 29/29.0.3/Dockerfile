@@ -1,5 +1,4 @@
-FROM inserteffect/android-build-tools:29.0.3
-MAINTAINER insertEFFECT <philip.graf@insfx.com>
+FROM ghcr.io/inserteffect/android-build-tools:29.0.3
 
 ENV ANDROID_PLATFORM_VERSION=29
 ENV BUNDLER_VERSION=2.0.2
@@ -43,3 +42,4 @@ LABEL org.label-schema.vcs-url="https://github.com/inserteffect/docker-android.g
 LABEL org.label-schema.name="Android Build"
 LABEL org.label-schema.vendor="InsertEFFECT"
 LABEL org.label-schema.schema-version="1.0"
+LABEL org.opencontainers.image.authors="insertEFFECT <philip.graf@insfx.com>"
