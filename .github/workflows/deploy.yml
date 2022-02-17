@@ -15,12 +15,13 @@ on:
 
 env:
   IMAGE_PREFIX: android-
+  REGISTRY: ghcr.io
 
 jobs:
   getChangedImageTags:
     runs-on: ubuntu-latest
     outputs:
-      changedImageTags: ${{ steps.filter.outputs.filteredPaths }}
+      changedImageTags: ${{steps.filter.outputs.filteredPaths}}
 
     steps:
       - uses: actions/checkout@v2
@@ -35,7 +36,7 @@ jobs:
         name: Filter files
         uses: inserteffect/github-actions-filter-changed-file-paths@v1.0
         with:
-          changedFiles: ${{ steps.files.outputs.all }}
+          changedFiles: ${{steps.files.outputs.all}}
           depth: 2
 
   uploadPackage:
@@ -47,34 +48,30 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        changedImageTags: ${{ fromJSON(needs.getChangedImageTags.outputs.changedImageTags) }}
+        changedImageTags: ${{fromJSON(needs.getChangedImageTags.outputs.changedImageTags)}}
 
     steps:
       - uses: actions/checkout@v2
 
-      - id: image
-        name: Set image
+      - id: image_tag
+        name: Set image and tag
         run: |
           image_tag=${{ matrix.changedImageTags }}
           image=${image_tag%%/*}
-          release=${image_tag##*/}
-          echo "##[set-output name=image;]$(echo ${image})"
-          echo "##[set-output name=release;]$(echo ${release})"
-
+          tag=${image_tag##*/}
+          echo "##[set-output name=image;]$(echo $image)"
+          echo "##[set-output name=tag;]$(echo $tag)"
+          echo "##[set-output name=full_path;]$(echo ${{env.REGISTRY}}/${{github.repository_owner}}/${{env.IMAGE_PREFIX}}$image:$tag)"
       - name: Build image
         run: |
           docker build \
-          --build-arg VERSION=${{steps.image.outputs.release}} \
+          --build-arg VERSION=${{steps.image_tag.outputs.tag}} \
           --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
           --build-arg VCS_REF=$(git rev-parse --short HEAD) \
-          -t ${{env.IMAGE_PREFIX}}${{steps.image.outputs.image}} ./${{steps.image.outputs.image}}/${{steps.image.outputs.release}}
-
+          -t ${{steps.image_tag.outputs.full_path}} ./${{steps.image_tag.outputs.image}}/${{steps.image_tag.outputs.tag}}
       - name: Log in to registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{secrets.GITHUB_TOKEN}}" | docker login ghcr.io -u ${{github.actor}} --password-stdin
 
       - name: Push image
         run: |
-          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/${{env.IMAGE_PREFIX}}${{steps.image.outputs.image}}
-          VERSION=${{steps.image.outputs.release}}
-          docker tag ${{env.IMAGE_PREFIX}}${{steps.image.outputs.image}} $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+          docker push ${{steps.image_tag.outputs.full_path}}
